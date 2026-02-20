@@ -1,25 +1,35 @@
-import type { FastifyInstance, RouteShorthandOptions } from "fastify";
+import type { FastifyInstance } from "fastify";
 import Fastify from "fastify";
-import { IncomingMessage, request, Server, ServerResponse } from "http";
+import allSchemas from "./routes.schemas/index.js";
+
+//import { IncomingMessage, request, Server, ServerResponse } from "http";
 
 const server: FastifyInstance = Fastify({});
 
-const options: RouteShorthandOptions = {
-	schema: {
-		response: {
-			200: {
-				type: "object",
-				properties: {
-					pong: { type: "string" },
-				},
-			},
-		},
-	},
+export type User = {
+	email: string;
+	password: string;
 };
 
-server.get("/ping", options, async (_request, _reply) => {
-	return { pong: "it worked!" };
+server.post("/login", allSchemas.loginRouteSchema, async (request, reply) => {
+	const { email, password } = request.body as User;
+	reply.send({ success: "Login successFULly!", token: "fake-jwt-token" });
 });
+
+server.post(
+	"/register",
+	allSchemas.registerRouteSchema,
+	async (request, reply) => {
+		const { name, email, password } = request.body as {
+			name: string;
+			email: string;
+			password: string;
+		};
+		reply
+			.code(201)
+			.send({ success: "Registration successful!", token: "fake-jwt-token" });
+	},
+);
 
 const start = async () => {
 	try {
@@ -27,6 +37,7 @@ const start = async () => {
 		const address = server.server.address();
 		const port = typeof address === "string" ? address : address?.port;
 		server.log.info(`Server listening on port ${port}`);
+		console.log(`Server listening on port ${port} 🛜`);
 	} catch (error) {
 		server.log.error(error);
 		process.exit(1);
