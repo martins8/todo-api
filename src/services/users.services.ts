@@ -1,5 +1,5 @@
 import type { LoginUser, RegisterUser } from "@/models/users.models.js";
-import client from "../db/index.js";
+import client from "../_infra/db/index.js";
 
 export type Error =
 	| "EMAIL_ALREADY_EXISTS"

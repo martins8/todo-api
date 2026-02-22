@@ -13,7 +13,7 @@ server.get("/", async (_request, reply) => {
 	});
 });
 
-server.register(userRoutes);
+await server.register(userRoutes);
 
 const start = async () => {
 	try {

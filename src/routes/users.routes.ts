@@ -3,7 +3,7 @@ import {
 	loginController,
 	registerController,
 } from "@/controllers/users.controller.js";
-import allSchemas from "@/routes.schemas/index.js";
+import allSchemas from "@/routes/routes.schemas/index.js";
 
 export async function userRoutes(server: FastifyInstance) {
 	server.post(
