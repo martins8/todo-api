@@ -1,32 +1,39 @@
 import type { LoginUser, RegisterUser } from "@/models/users.models.js";
 import client from "../_infra/db/index.js";
+import {
+	EmailAlreadyExistsError,
+	InternalServerError,
+	InvalidCredentialsError,
+} from "../_infra/errors/errors.js";
 
-export type Error =
-	| "EMAIL_ALREADY_EXISTS"
-	| "INVALID_CREDENTIALS"
-	| "DATABASE_ERROR";
-
-export async function registerUser(
-	user: RegisterUser,
-): Promise<string | Error> {
+export async function registerUser(user: RegisterUser): Promise<string> {
 	const { email, password, name } = user;
 	const id = crypto.randomUUID();
 	try {
+		// Check if email already exists
+		const existing = await client.execute({
+			sql: "SELECT id FROM users WHERE email = ?",
+			args: [email],
+		});
+		if (existing.rows.length > 0) {
+			throw new EmailAlreadyExistsError({});
+		}
+
 		await client.execute({
 			sql: "INSERT INTO users (id, name, email, password) VALUES (?, ?, ?, ?)",
 			args: [id, name, email, password],
 		});
 		return crypto.randomUUID(); // Return a fake token for demonstration purposes
 	} catch (error) {
-		if (error instanceof Error && error.message === "EMAIL_ALREADY_EXISTS") {
-			return "EMAIL_ALREADY_EXISTS";
+		if (error instanceof EmailAlreadyExistsError) {
+			throw error;
 		}
 		console.error("Error during registration:", error);
-		return "DATABASE_ERROR";
+		throw new InternalServerError({ cause: error });
 	}
 }
 
-export async function loginUser(user: LoginUser): Promise<string | Error> {
+export async function loginUser(user: LoginUser): Promise<string> {
 	const { email, password } = user;
 	try {
 		const result = await client.execute({
@@ -34,15 +41,15 @@ export async function loginUser(user: LoginUser): Promise<string | Error> {
 			args: [email, password],
 		});
 		if (result.rows.length === 0) {
-			return "INVALID_CREDENTIALS";
+			throw new InvalidCredentialsError({});
 		}
 
 		return crypto.randomUUID(); // Return a fake token for demonstration purposes
 	} catch (error) {
-		if (error instanceof Error && error.message === "INVALID_CREDENTIALS") {
-			return "INVALID_CREDENTIALS";
+		if (error instanceof InvalidCredentialsError) {
+			throw error;
 		}
 		console.error("Error during login:", error);
-		return "DATABASE_ERROR";
+		throw new InternalServerError({ cause: error });
 	}
 }

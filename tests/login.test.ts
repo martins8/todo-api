@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { createTables, dropTables } from "@/db/tables.js";
-import client from "@/infra/db/index.js";
+import client from "@/_infra/db/index.js";
+import { createTables, dropTables } from "@/_infra/db/tables.js";
 
 beforeAll(async () => {
 	await dropTables();
@@ -52,6 +52,11 @@ describe("TEST INVALID LOGIN", () => {
 
 		const data = await response.json();
 
-		expect(data).toEqual({ error: "Invalid email or password" });
+		expect(data).toEqual({
+			name: "InvalidCredentialsError",
+			action: "check your credentials and try again",
+			message: "Invalid credentials",
+			statusCode: 401,
+		});
 	});
 });

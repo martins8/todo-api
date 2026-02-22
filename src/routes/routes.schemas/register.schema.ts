@@ -18,28 +18,22 @@ export const registerRouteSchema: RouteShorthandOptions = {
 					token: { type: "string" },
 				},
 			},
-			400: {
+			409: {
 				type: "object",
 				properties: {
-					error: { type: "string" },
-				},
-			},
-			401: {
-				type: "object",
-				properties: {
-					error: { type: "string" },
-				},
-			},
-			403: {
-				type: "object",
-				properties: {
-					error: { type: "string" },
+					name: { type: "string" },
+					message: { type: "string" },
+					action: { type: "string" },
+					statusCode: { type: "number" },
 				},
 			},
 			500: {
 				type: "object",
 				properties: {
-					error: { type: "string" },
+					name: { type: "string" },
+					message: { type: "string" },
+					action: { type: "string" },
+					statusCode: { type: "number" },
 				},
 			},
 		},

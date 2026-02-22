@@ -9,6 +9,7 @@ export const loginRouteSchema: RouteShorthandOptions = {
 				password: { type: "string" },
 			},
 			required: ["email", "password"],
+			additionalProperties: false,
 		},
 		response: {
 			200: {
@@ -18,28 +19,22 @@ export const loginRouteSchema: RouteShorthandOptions = {
 					token: { type: "string" },
 				},
 			},
-			400: {
-				type: "object",
-				properties: {
-					error: { type: "string" },
-				},
-			},
 			401: {
 				type: "object",
 				properties: {
-					error: { type: "string" },
-				},
-			},
-			403: {
-				type: "object",
-				properties: {
-					error: { type: "string" },
+					name: { type: "string" },
+					message: { type: "string" },
+					action: { type: "string" },
+					statusCode: { type: "number" },
 				},
 			},
 			500: {
 				type: "object",
 				properties: {
-					error: { type: "string" },
+					name: { type: "string" },
+					message: { type: "string" },
+					action: { type: "string" },
+					statusCode: { type: "number" },
 				},
 			},
 		},

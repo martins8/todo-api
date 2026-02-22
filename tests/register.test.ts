@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { createTables, dropTables } from "@/db/tables.js";
-import client from "@/infra/db/index.js";
+import client from "@/_infra/db/index.js";
+import { createTables, dropTables } from "@/_infra/db/tables.js";
 
 beforeAll(async () => {
 	await dropTables();
