@@ -1,6 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { AppError } from "@/_infra/errors/AppError.js";
-import { BadRequestError } from "@/_infra/errors/errors.js";
 import type { LoginUser, RegisterUser } from "@/models/users.models.js";
 import { loginUser, registerUser } from "@/services/users.services.js";
 
@@ -15,9 +14,6 @@ export async function loginController(
 	reply: FastifyReply,
 ) {
 	try {
-		if (Object.keys(request.body).includes("name")) {
-			throw new BadRequestError({});
-		}
 		const token = await loginUser(request.body as LoginUser);
 		return reply.send({ success: "Login successful!", token });
 	} catch (error) {
