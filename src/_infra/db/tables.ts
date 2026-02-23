@@ -9,20 +9,27 @@ CREATE TABLE IF NOT EXISTS users (
 )
 `;
 
+export const todosTableSchema = `
+CREATE TABLE IF NOT EXISTS todos (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+title TEXT NOT NULL,
+description TEXT NOT NULL
+)`;
+
 export async function createTables() {
 	try {
 		await client.execute(userTableSchema);
-		console.log("User table created successfully.");
+		await client.execute(todosTableSchema);
 	} catch (error) {
-		console.error("Error creating user table:", error);
+		console.error("Error creating tables:", error);
 	}
 }
 
 export async function dropTables() {
 	try {
 		await client.execute("DROP TABLE IF EXISTS users");
-		console.log("User table dropped successfully.");
+		await client.execute("DROP TABLE IF EXISTS todos");
 	} catch (error) {
-		console.error("Error dropping user table:", error);
+		console.error("Error dropping tables:", error);
 	}
 }
