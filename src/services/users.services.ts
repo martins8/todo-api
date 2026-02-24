@@ -1,4 +1,8 @@
-import type { LoginUser, RegisterUser } from "@/models/users.models.js";
+import type {
+	LoginUser,
+	RegisterUser,
+	UserResponse,
+} from "@/models/users.models.js";
 import client from "../_infra/db/index.js";
 import {
 	EmailAlreadyExistsError,
@@ -6,7 +10,7 @@ import {
 	InvalidCredentialsError,
 } from "../_infra/errors/errors.js";
 
-export async function registerUser(user: RegisterUser): Promise<string> {
+export async function registerUser(user: RegisterUser): Promise<UserResponse> {
 	const { email, password, name } = user;
 	const id = crypto.randomUUID();
 	try {
@@ -23,7 +27,8 @@ export async function registerUser(user: RegisterUser): Promise<string> {
 			sql: "INSERT INTO users (id, name, email, password) VALUES (?, ?, ?, ?)",
 			args: [id, name, email, password],
 		});
-		return crypto.randomUUID(); // Return a fake token for demonstration purposes
+
+		return { id, name, email };
 	} catch (error) {
 		if (error instanceof EmailAlreadyExistsError) {
 			throw error;
@@ -33,7 +38,7 @@ export async function registerUser(user: RegisterUser): Promise<string> {
 	}
 }
 
-export async function loginUser(user: LoginUser): Promise<string> {
+export async function loginUser(user: LoginUser): Promise<UserResponse> {
 	const { email, password } = user;
 	try {
 		const result = await client.execute({
@@ -43,8 +48,12 @@ export async function loginUser(user: LoginUser): Promise<string> {
 		if (result.rows.length === 0) {
 			throw new InvalidCredentialsError({});
 		}
-
-		return crypto.randomUUID(); // Return a fake token for demonstration purposes
+		const user = result.rows[0];
+		return {
+			id: user.id as string,
+			name: user.name as string,
+			email: user.email as string,
+		};
 	} catch (error) {
 		if (error instanceof InvalidCredentialsError) {
 			throw error;

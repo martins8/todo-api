@@ -1,11 +1,26 @@
+import fastifyJwt from "@fastify/jwt";
 import type { FastifyInstance } from "fastify";
 import Fastify from "fastify";
+import { auth } from "./auth/index.js";
 import { todoRoutes } from "./routes/todos.routes.js";
 import { userRoutes } from "./routes/users.routes.js";
 
-//import { IncomingMessage, request, Server, ServerResponse } from "http";
-
 const server: FastifyInstance = Fastify({});
+
+//in production need to use a env variable for the secret
+server.register(fastifyJwt, {
+	secret: process.env.JWT_SECRET || "supersecret",
+	sign: { expiresIn: "1h" },
+});
+
+server.addHook("onRequest", async (request, reply) => {
+	if (request.url.startsWith("/todos")) {
+		await auth(request, reply);
+	}
+});
+
+await server.register(userRoutes);
+await server.register(todoRoutes);
 
 server.get("/", async (_request, reply) => {
 	reply.send({
@@ -13,9 +28,6 @@ server.get("/", async (_request, reply) => {
 		endpoints: ["/login", "/register"],
 	});
 });
-
-await server.register(userRoutes);
-await server.register(todoRoutes);
 
 const start = async () => {
 	try {

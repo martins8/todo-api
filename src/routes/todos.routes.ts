@@ -3,5 +3,9 @@ import { createTodoController } from "../controllers/todos.controller.js";
 import { createTodoSchema } from "./routes.schemas/createTodos.schema.js";
 
 export async function todoRoutes(server: FastifyInstance) {
-	server.post("/todos", createTodoSchema, createTodoController as RouteHandler);
+	server.post(
+		"/todos/create",
+		createTodoSchema,
+		createTodoController as RouteHandler,
+	);
 }

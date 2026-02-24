@@ -14,7 +14,8 @@ export async function loginController(
 	reply: FastifyReply,
 ) {
 	try {
-		const token = await loginUser(request.body as LoginUser);
+		await loginUser(request.body as LoginUser);
+		const token = await reply.jwtSign({ email: request.body.email });
 		return reply.send({ success: "Login successful!", token });
 	} catch (error) {
 		if (error instanceof AppError) {
@@ -32,7 +33,8 @@ export async function registerController(
 	reply: FastifyReply,
 ) {
 	try {
-		const token = await registerUser(request.body as RegisterUser);
+		await registerUser(request.body as RegisterUser);
+		const token = await reply.jwtSign({ email: request.body.email });
 		return reply.code(201).send({ success: "Registration successful!", token });
 	} catch (error) {
 		if (error instanceof AppError) {
