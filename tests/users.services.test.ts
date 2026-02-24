@@ -23,7 +23,7 @@ describe("TEST USERS SERVICES", () => {
 		expect(result).toBeDefined();
 		expect(result).not.toBe("EMAIL_ALREADY_EXISTS");
 		expect(result).not.toBe("DATABASE_ERROR");
-		expect(typeof result).toBe("string");
+		expect(typeof result).toBe("object");
 	});
 
 	it("should login successfully", async () => {
@@ -34,11 +34,11 @@ describe("TEST USERS SERVICES", () => {
 		expect(result).toBeDefined();
 		expect(result).not.toBe("INVALID_CREDENTIALS");
 		expect(result).not.toBe("DATABASE_ERROR");
-		expect(typeof result).toBe("string");
+		expect(typeof result).toBe("object");
 	});
 
 	it("should fail with invalid credentials", async () => {
-		expect(async () => {
+		await expect(async () => {
 			await loginUser({
 				email: "invalid@example.com",
 				password: "wrongpassword",

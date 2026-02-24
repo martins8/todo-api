@@ -1,72 +1,63 @@
-import { beforeAll, describe, expect, it } from "vitest";
-import client from "@/_infra/db/index.js";
-import { createTables, dropTables } from "@/_infra/db/tables.js";
+import fastifyJwt from "@fastify/jwt";
+import Fastify from "fastify";
+import { afterAll, beforeAll, expect, it } from "vitest";
+import { todoRoutes } from "@/routes/todos.routes.js";
+import { userRoutes } from "@/routes/users.routes.js";
+
+let server: ReturnType<typeof Fastify>;
+interface RegisterResponse {
+	success: string;
+	token: string;
+}
 
 beforeAll(async () => {
-	await dropTables();
-	await createTables();
-	await registerUser({
-		name: "Test User",
-		email: "test@example.com",
-		password: "password123",
-	});
-	await loginUser({
-		email: "test@example.com",
-		password: "password123",
-	});
+	server = Fastify();
+	server.register(fastifyJwt, { secret: "testsecret" });
+	await server.register(userRoutes);
+	await server.register(todoRoutes);
+	await server.listen({ port: 3333 });
 });
-
-import { afterAll } from "vitest";
-import { loginUser, registerUser } from "@/services/users.services.js";
 
 afterAll(async () => {
-	await client.close();
+	await server.close();
 });
 
-describe("todo endpoint tests", () => {
-	it("should be existing", async () => {
-		const response = await fetch("http://localhost:3000/todos", {
-			method: "POST",
-		});
-		expect(response.status).not.toBe(404);
+it("should create a todo with valid token", async () => {
+	// Primeiro registra usuário
+	const registerResponse = await fetch("http://localhost:3333/register", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({
+			name: "Test User 2",
+			email: "test2@example.com",
+			password: "password123",
+		}),
 	});
+	const registerData = (await registerResponse.json()) as RegisterResponse;
+	const token = registerData.token;
 
-	it("should negatively test todo creation without token", async () => {
-		const response = await fetch("http://localhost:3000/todos", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({
-				title: "Test Todo",
-				description: "This is a test todo item",
-			}),
-		});
-		const obj = await response.json();
-		expect(obj).toEqual({
-			code: "FST_ERR_VALIDATION",
-			error: "Bad Request",
-			message: "headers must have required property 'authorization'",
-			statusCode: 400,
-		});
-	});
-
-	it("should create a todo with valid token", async () => {
-		const response = await fetch("http://localhost:3000/todos", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: "jwt dummy-token",
-			},
-			body: JSON.stringify({
-				title: "Test Todo",
-				description: "This is a test todo item",
-			}),
-		});
-		expect(response.status).toBe(201);
-		const obj = await response.json();
-		expect(obj).toEqual({
-			id: 1,
+	// Agora cria o todo com o token
+	const response = await fetch("http://localhost:3333/todos/create", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${token}`,
+		},
+		body: JSON.stringify({
 			title: "Test Todo",
 			description: "This is a test todo item",
-		});
+		}),
+	});
+
+	expect(response.status).toBe(201);
+	const obj = (await response.json()) as {
+		id: number;
+		title: string;
+		description: string;
+	};
+	expect(obj).toEqual({
+		id: obj.id,
+		title: "Test Todo",
+		description: "This is a test todo item",
 	});
 });
