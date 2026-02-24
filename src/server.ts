@@ -1,5 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import Fastify from "fastify";
+import { todoRoutes } from "./routes/todos.routes.js";
 import { userRoutes } from "./routes/users.routes.js";
 
 //import { IncomingMessage, request, Server, ServerResponse } from "http";
@@ -14,6 +15,7 @@ server.get("/", async (_request, reply) => {
 });
 
 await server.register(userRoutes);
+await server.register(todoRoutes);
 
 const start = async () => {
 	try {
