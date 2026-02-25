@@ -1,11 +1,11 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import type { CreateTodo } from "../models/todos.models.js";
+import type { TodoRequest } from "../models/todos.models.js";
 import { createTodo } from "../services/todos.services.js";
 
 export async function createTodoController(
 	request: FastifyRequest<{
 		Headers: { Authorization: string };
-		Body: CreateTodo;
+		Body: TodoRequest;
 	}>,
 	reply: FastifyReply,
 ) {
