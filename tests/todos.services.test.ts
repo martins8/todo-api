@@ -5,6 +5,7 @@ import { NotFoundIdError } from "@/_infra/errors/errors.js";
 import {
 	createTodo,
 	deleteTodo,
+	getTodos,
 	updateTodo,
 } from "@/services/todos.services.js";
 
@@ -80,5 +81,18 @@ describe("TEST TODOS SERVICES", () => {
 		// Now, delete the todo
 		const deleted = await deleteTodo(created.id);
 		expect(deleted).toBe(true);
+	});
+
+	it("should get todos with pagination", async () => {
+		for (let i = 1; i <= 15; i++) {
+			await createTodo({
+				title: `Todo ${i}`,
+				description: `Description for todo ${i}`,
+			});
+		}
+
+		const result = await getTodos("1", "10");
+		expect(result.todos.length).toBe(10);
+		expect(result.total).toBeGreaterThanOrEqual(15);
 	});
 });
