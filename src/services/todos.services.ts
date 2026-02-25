@@ -1,3 +1,4 @@
+import { NotFoundIdError } from "@/_infra/errors/errors.js";
 import client from "../_infra/db/index.js";
 import type { TodoRequest, TodoResponse } from "../models/todos.models.js";
 
@@ -50,6 +51,29 @@ export async function updateTodo(
 		return todo;
 	} catch (error) {
 		console.error("Error updating todo:", error);
+		throw error;
+	}
+}
+
+export async function deleteTodo(id: string): Promise<boolean> {
+	try {
+		const hasId = await client.execute({
+			sql: "SELECT id FROM todos WHERE id = ?",
+			args: [id],
+		});
+
+		if (hasId.rows.length === 0) {
+			throw new NotFoundIdError({});
+		}
+
+		await client.execute({
+			sql: "DELETE FROM todos WHERE id = ?",
+			args: [id],
+		});
+
+		return true;
+	} catch (error) {
+		console.error("Error deleting todo:", error);
 		throw error;
 	}
 }

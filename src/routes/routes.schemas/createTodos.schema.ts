@@ -3,9 +3,8 @@ export const createTodoSchema: RouteShorthandOptions = {
 	schema: {
 		headers: {
 			type: "object",
-			pattern: "^Bearer\\s.+$",
 			properties: {
-				Authorization: { type: "string" },
+				Authorization: { type: "string", pattern: "^Bearer\\s.+$" },
 			},
 			required: ["Authorization"],
 			additionalProperties: false,

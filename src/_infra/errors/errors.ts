@@ -46,3 +46,15 @@ export class InvalidCredentialsError extends AppError {
 		);
 	}
 }
+
+export class NotFoundIdError extends AppError {
+	constructor({ cause }: { cause?: unknown }) {
+		super(
+			"ID not found",
+			"NotFoundIdError",
+			"check the ID and try again",
+			404,
+			cause,
+		);
+	}
+}
