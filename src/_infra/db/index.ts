@@ -5,7 +5,7 @@ const client = createClient({
 });
 
 await client.execute({
-	sql: "PRAGMA busy_timeout = 5000",
+	sql: "PRAGMA busy_timeout = 2000",
 });
 
 export default client;

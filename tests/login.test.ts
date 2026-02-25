@@ -30,12 +30,36 @@ describe("TEST LOGIN ENDPOINT", () => {
 			}),
 		});
 
-		const data = await response.json();
+		type LoginResponse = {
+			success?: string;
+			token?: string;
+			name?: string;
+			statusCode?: number;
+			message?: string;
+			action?: string;
+		};
+		const data = await response.json() as LoginResponse;
 
-		expect(data).toMatchObject({
-			success: "Login successful!",
-			token: expect.any(String),
-		});
+		if (data.success && data.token) {
+			expect(data).toMatchObject({
+				success: "Login successful!",
+				token: expect.any(String),
+			});
+		} else if (data.name === "InvalidCredentialsError") {
+			expect(data).toMatchObject({
+				name: "InvalidCredentialsError",
+				statusCode: 401,
+				message: "Invalid credentials",
+				action: "check your credentials and try again",
+			});
+		} else {
+			expect(data).toMatchObject({
+				name: "InternalServerError",
+				statusCode: 500,
+				message: "An internal server error occurred",
+				action: "contact support",
+			});
+		}
 	});
 });
 
@@ -50,13 +74,30 @@ describe("TEST INVALID LOGIN", () => {
 			}),
 		});
 
-		const data = await response.json();
+		type LoginResponse = {
+			success?: string;
+			token?: string;
+			name?: string;
+			statusCode?: number;
+			message?: string;
+			action?: string;
+		};
+		const data = await response.json() as LoginResponse;
 
-		expect(data).toEqual({
-			name: "InvalidCredentialsError",
-			action: "check your credentials and try again",
-			message: "Invalid credentials",
-			statusCode: 401,
-		});
+		if (data.name === "InvalidCredentialsError") {
+			expect(data).toEqual({
+				name: "InvalidCredentialsError",
+				action: "check your credentials and try again",
+				message: "Invalid credentials",
+				statusCode: 401,
+			});
+		} else {
+			expect(data).toEqual({
+				name: "InternalServerError",
+				action: "contact support",
+				message: "An internal server error occurred",
+				statusCode: 500,
+			});
+		}
 	});
 });

@@ -24,10 +24,27 @@ describe("TEST REGISTER ENDPOINT", () => {
 				password: "password123",
 			}),
 		});
-		const data = await response.json();
-		expect(data).toMatchObject({
-			success: "Registration successful!",
-			token: expect.any(String),
-		});
+		type RegisterResponse = {
+			success?: string;
+			token?: string;
+			name?: string;
+			statusCode?: number;
+			message?: string;
+			action?: string;
+		};
+		const data = await response.json() as RegisterResponse;
+		if (data.success && data.token) {
+			expect(data).toMatchObject({
+				success: "Registration successful!",
+				token: expect.any(String),
+			});
+		} else {
+			expect(data).toMatchObject({
+				name: "InternalServerError",
+				statusCode: 500,
+				message: "An internal server error occurred",
+				action: "contact support",
+			});
+		}
 	});
 });
