@@ -27,6 +27,18 @@ export const createTodoSchema: RouteShorthandOptions = {
 					description: { type: "string" },
 				},
 			},
+			401: {
+				type: "object",
+				properties: {
+					message: { type: "string" },
+				},
+			},
+			403: {
+				type: "object",
+				properties: {
+					message: { type: "string" },
+				},
+			},
 		},
 	},
 };
