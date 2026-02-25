@@ -1,6 +1,10 @@
 import { NotFoundIdError } from "@/_infra/errors/errors.js";
 import client from "../_infra/db/index.js";
-import type { TodoRequest, TodoResponse } from "../models/todos.models.js";
+import type {
+	PaginatedTodosResponse,
+	TodoRequest,
+	TodoResponse,
+} from "../models/todos.models.js";
 
 export async function createTodo(todoData: TodoRequest): Promise<TodoResponse> {
 	const { title, description } = todoData;
@@ -56,4 +60,35 @@ export async function deleteTodo(id: string): Promise<boolean> {
 		console.error("Error deleting todo:", error);
 		throw error;
 	}
+}
+
+export async function getTodos(
+	pageStr: string,
+	limitStr: string,
+): Promise<PaginatedTodosResponse> {
+	const page = Number(pageStr);
+	const limit = Number(limitStr);
+
+	const offset = (page - 1) * limit;
+
+	const result = await client.execute({
+		sql: "SELECT * FROM todos LIMIT ? OFFSET ?",
+		args: [limit, offset],
+	});
+
+	const countResult = await client.execute({
+		sql: "SELECT COUNT(*) as total FROM todos",
+	});
+	const total = Number(countResult.rows[0].total);
+
+	return {
+		todos: result.rows.map((row) => ({
+			id: row.id as string,
+			title: row.title as string,
+			description: row.description as string,
+		})),
+		total,
+		page,
+		limit,
+	};
 }

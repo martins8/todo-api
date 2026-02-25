@@ -4,6 +4,7 @@ import type { TodoRequest } from "../models/todos.models.js";
 import {
 	createTodo,
 	deleteTodo,
+	getTodos,
 	updateTodo,
 } from "../services/todos.services.js";
 
@@ -92,5 +93,30 @@ export async function deleteTodoController(
 		}
 
 		return reply.code(500).send({ error: "Failed to delete todo" });
+	}
+}
+
+export async function getTodosController(
+	request: FastifyRequest<{
+		Headers: { Authorization: string };
+		Querystring: { page?: string; limit?: string };
+	}>,
+	reply: FastifyReply,
+) {
+	try {
+		const { page = "1", limit = "10" } = request.query;
+		const todos = await getTodos(page, limit);
+		return reply.code(200).send(todos);
+	} catch (error: unknown) {
+		console.log("Error in getTodosController:", error);
+		if (
+			typeof error === "object" &&
+			error !== null &&
+			"code" in error &&
+			(error as { code?: string }).code === "FST_ERR_VALIDATION"
+		) {
+			return reply.code(400).send(error);
+		}
+		return reply.code(500).send({ error: "Failed to fetch todos" });
 	}
 }

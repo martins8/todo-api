@@ -8,3 +8,10 @@ export interface TodoResponse {
 	title: string;
 	description: string;
 }
+
+export interface PaginatedTodosResponse {
+	todos: TodoResponse[];
+	total: number;
+	page: number;
+	limit: number;
+}

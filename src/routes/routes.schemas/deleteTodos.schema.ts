@@ -1,9 +1,9 @@
 import type { RouteShorthandOptions } from "fastify";
+
 export const deleteTodoSchema: RouteShorthandOptions = {
 	schema: {
 		headers: {
 			type: "object",
-
 			properties: {
 				Authorization: { type: "string", pattern: "^Bearer\\s.+$" },
 			},
@@ -11,7 +11,11 @@ export const deleteTodoSchema: RouteShorthandOptions = {
 			additionalProperties: false,
 		},
 		params: {
-			id: { type: "string" },
+			type: "object",
+			properties: {
+				id: { type: "string" },
+			},
+			required: ["id"],
 		},
 	},
 };
